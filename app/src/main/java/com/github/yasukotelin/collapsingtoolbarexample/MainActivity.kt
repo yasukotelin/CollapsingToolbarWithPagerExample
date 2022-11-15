@@ -6,27 +6,31 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.github.yasukotelin.collapsingtoolbarexample.ui.theme.CollapsingToolbarExampleTheme
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalPagerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -51,6 +55,9 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                val coroutineScope = rememberCoroutineScope()
+                val pagerState = rememberPagerState(initialPage = 0)
+
                 Scaffold(
                     topBar = {
                         AnimatedVisibility(
@@ -72,8 +79,9 @@ class MainActivity : ComponentActivity() {
                                     ),
                                     title = { Text("Toolbar") }
                                 )
-                                AsyncImage(
-                                    model = "https://placehold.jp/350x160.png",
+                                Image(
+                                    painter = painterResource(id = R.drawable.banner),
+                                    contentScale = ContentScale.FillWidth,
                                     contentDescription = null,
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -88,14 +96,52 @@ class MainActivity : ComponentActivity() {
                             .background(MaterialTheme.colorScheme.inverseOnSurface)
                             .nestedScroll(nestedScrollConnection)
                     ) {
-                        LazyColumn {
-                            items(100) { index ->
-                                Text(
-                                    "I'm item $index",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp)
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            TabRow(
+                                selectedTabIndex = pagerState.currentPage,
+                            ) {
+                                Tab(
+                                    text = { Text("Tab1") },
+                                    selected = pagerState.currentPage == 0,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(0)
+                                        }
+                                    },
                                 )
+                                Tab(
+                                    text = { Text("Tab2") },
+                                    selected = pagerState.currentPage == 1,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(1)
+                                        }
+                                    },
+                                )
+                                Tab(
+                                    text = { Text("Tab3") },
+                                    selected = pagerState.currentPage == 2,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(2)
+                                        }
+                                    },
+                                )
+                            }
+                            HorizontalPager(
+                                count = 3,
+                                state = pagerState,
+                            ) { tabIndex ->
+                                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                    items(100) { index ->
+                                        Text(
+                                            "I'm item $index",
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
