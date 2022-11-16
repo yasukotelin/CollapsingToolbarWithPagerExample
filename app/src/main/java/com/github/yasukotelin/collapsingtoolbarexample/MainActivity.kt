@@ -67,11 +67,7 @@ class MainActivity : ComponentActivity() {
                             ),
                             exit = shrinkVertically()
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .wrapContentSize()
-                                    .animateContentSize()
-                            ) {
+                            Column {
                                 TopAppBar(
                                     colors = TopAppBarDefaults.smallTopAppBarColors(
                                         containerColor = MaterialTheme.colorScheme.primary,
