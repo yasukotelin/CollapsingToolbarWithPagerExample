@@ -72,29 +72,13 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     topBar = {
-                        AnimatedVisibility(
-                            visible = isShowTopBarArea,
-                            enter = expandVertically(
-                                expandFrom = Alignment.Top
+                        TopAppBar(
+                            colors = TopAppBarDefaults.smallTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary
                             ),
-                            exit = shrinkVertically()
-                        ) {
-                            Column {
-                                TopAppBar(
-                                    colors = TopAppBarDefaults.smallTopAppBarColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        titleContentColor = MaterialTheme.colorScheme.onPrimary
-                                    ),
-                                    title = { Text("Toolbar") }
-                                )
-                                Image(
-                                    painter = painterResource(id = R.drawable.banner),
-                                    contentScale = ContentScale.FillWidth,
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
+                            title = { Text("Toolbar") }
+                        )
                     }
                 ) { innerPadding ->
                     Box(
@@ -105,6 +89,21 @@ class MainActivity : ComponentActivity() {
                             .nestedScroll(nestedScrollConnection)
                     ) {
                         Column(modifier = Modifier.fillMaxSize()) {
+                            AnimatedVisibility(
+                                visible = isShowTopBarArea,
+                                enter = expandVertically(
+                                    expandFrom = Alignment.Top
+                                ),
+                                exit = shrinkVertically()
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.banner),
+                                    contentScale = ContentScale.FillWidth,
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+
                             TabRow(
                                 selectedTabIndex = pagerState.currentPage,
                             ) {
