@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,6 +37,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             CollapsingToolbarExampleTheme {
 
+                val coroutineScope = rememberCoroutineScope()
+                val pagerState = rememberPagerState(initialPage = 0)
+                val lazyListStates = listOf(
+                    rememberLazyListState(), rememberLazyListState(), rememberLazyListState()
+                )
+
                 val density = LocalDensity.current
 
                 val playDistance = with(density) { 12.dp.toPx() }
@@ -47,16 +54,21 @@ class MainActivity : ComponentActivity() {
                             available: Offset,
                             source: NestedScrollSource
                         ): Offset {
-                            if (available.y.absoluteValue > playDistance) {
-                                isShowTopBarArea = available.y > 0
+                            lazyListStates.getOrNull(pagerState.currentPage)?.let { lazyListState ->
+                                if (available.y > 0 && lazyListState.firstVisibleItemIndex == 0) {
+                                    // 一番上の要素が表示されたので表示
+                                    isShowTopBarArea = true
+                                } else {
+                                    if (available.y.absoluteValue > playDistance && available.y < 0) {
+                                        isShowTopBarArea = false
+                                    }
+                                }
                             }
+
                             return Offset.Zero
                         }
                     }
                 }
-
-                val coroutineScope = rememberCoroutineScope()
-                val pagerState = rememberPagerState(initialPage = 0)
 
                 Scaffold(
                     topBar = {
@@ -127,15 +139,21 @@ class MainActivity : ComponentActivity() {
                             HorizontalPager(
                                 count = 3,
                                 state = pagerState,
+                                modifier = Modifier.fillMaxSize()
                             ) { tabIndex ->
-                                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                    items(100) { index ->
-                                        Text(
-                                            "I'm item $index",
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(16.dp)
-                                        )
+                                lazyListStates.getOrNull(tabIndex)?.let { lazyListState ->
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxSize(),
+                                        state = lazyListState
+                                    ) {
+                                        items(100) { index ->
+                                            Text(
+                                                "I'm item $index",
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(16.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
