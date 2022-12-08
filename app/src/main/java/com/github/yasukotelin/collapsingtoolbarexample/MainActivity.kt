@@ -8,6 +8,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -59,6 +62,7 @@ class MainActivity : ComponentActivity() {
                 val pagerState = rememberPagerState(initialPage = 0)
 
                 Scaffold(
+                    modifier = Modifier.nestedScroll(nestedScrollConnection),
                     topBar = {
                         AnimatedVisibility(
                             visible = isShowTopBarArea,
@@ -79,7 +83,13 @@ class MainActivity : ComponentActivity() {
                                     painter = painterResource(id = R.drawable.banner),
                                     contentScale = ContentScale.FillWidth,
                                     contentDescription = null,
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        // enable event when scroll image.
+                                        .scrollable(
+                                            orientation = Orientation.Vertical,
+                                            state = rememberScrollableState { it }
+                                        )
                                 )
                             }
                         }
@@ -90,7 +100,6 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .fillMaxSize()
                             .background(MaterialTheme.colorScheme.inverseOnSurface)
-                            .nestedScroll(nestedScrollConnection)
                     ) {
                         Column(modifier = Modifier.fillMaxSize()) {
                             TabRow(
